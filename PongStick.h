@@ -1,9 +1,8 @@
-#pragma once
-#include <iostream>
-#include <SFML/Graphics.hpp>
-using namespace std;
-using namespace sf;
+﻿#pragma once
 
+#include <SFML/Graphics.hpp>
+
+using namespace sf;
 
 // 플레이어가 움직이는 스틱이 정의된 클래스
 class PongStick : public RectangleShape
