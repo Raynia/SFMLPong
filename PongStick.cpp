@@ -4,7 +4,6 @@ int PongStick::PlayerCount = 0;
 
 PongStick::PongStick() {}
 
-
 PongStick::PongStick(Vector2f Position, Vector2f Size)
 	: StickPosition(Position), StickSize(Size)
 {
