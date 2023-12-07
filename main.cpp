@@ -31,13 +31,13 @@ int main()
 	windowSettings.majorVersion = 4U;
 	windowSettings.minorVersion = 0U;
 
-	int32_t windowStyle = sf::Style::Close;
+	int32_t windowStyle = Style::Close;
 
-	sf::Font font;
+	Font font;
 	if (!font.loadFromFile("c:/windows/fonts/arial.ttf"))
 		return -1;
 
-	sf::Text text("Hello SFML!", font, 30U);
+	Text text("Hello SFML!", font, 30U);
 
 	//////////////////////////////////////////
 	///
@@ -45,9 +45,9 @@ int main()
 	///
 	//////////////////////////////////////////
 
-	sf::RenderWindow window;
+	RenderWindow window;
 
-	window.create(sf::VideoMode(windowWidth, windowHeight), windowTitle, windowStyle, windowSettings);
+	window.create(VideoMode(windowWidth, windowHeight), windowTitle, windowStyle, windowSettings);
 
 	///////////////////////////////////////////
 	////
@@ -58,21 +58,21 @@ int main()
 	Clock UserClock;
 
 
-	const sf::Vector2u windowSize = window.getSize();
+	const Vector2u windowSize = window.getSize();
 
-	const sf::Vector2f standardSize(10, 70);
-	const sf::Vector2f standardPos(30, (windowSize.y - standardSize.y) / 2);
+	const Vector2f standardSize(10, 70);
+	const Vector2f standardPos(30, (windowSize.y - standardSize.y) / 2);
 
-	sf::Vector2f leftPlayerSize(standardSize);
-	sf::Vector2f leftPlayerPosition(standardPos.x, standardPos.y);
+	Vector2f leftPlayerSize(standardSize);
+	Vector2f leftPlayerPosition(standardPos.x, standardPos.y);
 
-	sf::Vector2f rightPlayerSize(standardSize);
-	sf::Vector2f rightPlayerPosition(windowSize.x - (standardPos.x * 2), standardPos.y);
+	Vector2f rightPlayerSize(standardSize);
+	Vector2f rightPlayerPosition(windowSize.x - (standardPos.x * 2), standardPos.y);
 
 	PongStick leftPongStick = PongStick(standardPos, standardSize);
 	PongStick rightPongStick = leftPongStick;
 
-	sf::CircleShape ball;
+	CircleShape ball;
 	ball.setRadius(10.0f);
 	ball.setPosition((windowSize.x - ball.getRadius()) / 2, (windowSize.y - ball.getRadius()) / 2);
 
@@ -106,20 +106,20 @@ int main()
 	///////////////////////////////////////////
 	while (window.isOpen())
 	{
-		sf::Event event;
+		Event event;
 
 		while (window.pollEvent(event))
 		{
 			switch (event.type)
 			{
-			case sf::Event::Closed:
+			case Event::Closed:
 				window.close();
 				break;
 
-			case sf::Event::KeyPressed:
-				if (event.key.code == sf::Keyboard::Unknown) //Except unknown key
+			case Event::KeyPressed:
+				if (event.key.code == Keyboard::Unknown) //Except unknown key
 					; //do nothing
-				else if (event.key.code == sf::Keyboard::Escape)
+				else if (event.key.code == Keyboard::Escape)
 					window.close();
 
 				std::cout << "Key Pressed! - " << event.key.code << std::endl;
@@ -133,11 +133,11 @@ int main()
 		///
 		float DeltaTime = UserClock.restart().asSeconds();
 
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+		if (Keyboard::isKeyPressed(Keyboard::Up))
 		{
 			leftPongStick.StickVerticalMove(VerticalDirection::Up, DeltaTime);
 		}
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+		if (Keyboard::isKeyPressed(Keyboard::Down))
 		{
 			leftPongStick.StickVerticalMove(VerticalDirection::Down, DeltaTime);
 		}
