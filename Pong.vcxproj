@@ -149,10 +149,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="PongBall.cpp" />
     <ClCompile Include="PongStick.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EnumLibrary.h" />
+    <ClInclude Include="PongBall.h" />
     <ClInclude Include="PongStick.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
