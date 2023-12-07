@@ -1,5 +1,4 @@
-﻿#include <SFML/Graphics.hpp>
-#include <SFML/System.hpp>
+﻿#include <SFML/System.hpp>
 #include <box2d/box2d.h>
 
 #include <iostream>
@@ -8,7 +7,6 @@
 #include "PongStick.h"
 #include "EnumLibrary.h"
 
-using namespace sf;
 using namespace std;
 
 int main()
@@ -75,18 +73,15 @@ int main()
 	Clock UserClock;
 
 	const Vector2u windowSize = window.getSize();
+	const float leftSideStick = static_cast<float>(windowSize.x) * 0.1f;
+	const float rightSideStick = static_cast<float>(windowSize.x) * 0.9f;
+	const float middleOfStickPositonY = (static_cast<float>(windowSize.y) - PongStick::defaultPongStickHeight) / 2;
 
-	const Vector2f standardSize(10, 70);
-	const Vector2f standardPos(30, (windowSize.y - standardSize.y) / 2);
+	const Vector2f pongLeftStickPosition(leftSideStick, middleOfStickPositonY);
+	const Vector2f pongRightStickPosition(rightSideStick, middleOfStickPositonY);
 
-	Vector2f leftPlayerSize(standardSize);
-	Vector2f leftPlayerPosition(standardPos.x, standardPos.y);
-
-	Vector2f rightPlayerSize(standardSize);
-	Vector2f rightPlayerPosition(windowSize.x - (standardPos.x * 2), standardPos.y);
-
-	PongStick leftPongStick = PongStick(standardPos, standardSize);
-	PongStick rightPongStick = leftPongStick;
+	PongStick PongStick1 = PongStick(pongLeftStickPosition, PlayerType::Human);
+	PongStick PongStick2 = PongStick(pongRightStickPosition, PlayerType::Computer);
 
 	CircleShape ball;
 	ball.setRadius(10.0f);
@@ -101,11 +96,6 @@ int main()
 	///////////////////////////////////////////
 
 	std::cout << "Window Size : (" << windowSize.x << ", " << windowSize.y << ")" << std::endl;
-	std::cout << "Standard Position : (" << standardPos.x << ", " << standardPos.y << ")" << std::endl;
-	std::cout << "Left Player Size : (" << leftPlayerSize.x << ", " << leftPlayerSize.y << ")" << std::endl;
-	std::cout << "Left Player Position : (" << leftPlayerPosition.x << ", " << leftPlayerPosition.y << ")" << std::endl;
-	std::cout << "Right Player Size : (" << rightPlayerSize.x << ", " << rightPlayerSize.y << ")" << std::endl;
-	std::cout << "Right Player Position : (" << rightPlayerPosition.x << ", " << rightPlayerPosition.y << ")" << std::endl;
 
 	///////////////////////////////////////////
 	// 
@@ -175,11 +165,11 @@ int main()
 
 		if (Keyboard::isKeyPressed(Keyboard::Up))
 		{
-			leftPongStick.StickVerticalMove(VerticalDirection::Up, DeltaTime);
+			PongStick1.StickVerticalMove(VerticalDirection::Up, DeltaTime);
 		}
 		if (Keyboard::isKeyPressed(Keyboard::Down))
 		{
-			leftPongStick.StickVerticalMove(VerticalDirection::Down, DeltaTime);
+			PongStick1.StickVerticalMove(VerticalDirection::Down, DeltaTime);
 		}
 
 		///////////////////////////////////////////
@@ -196,7 +186,8 @@ int main()
 		window.clear();
 
 		window.draw(text);
-		window.draw(leftPongStick);
+		window.draw(PongStick1);
+		window.draw(PongStick2);
 		window.draw(ball);
 
 		window.display();

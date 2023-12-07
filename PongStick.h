@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <SFML/Graphics.hpp>
 
@@ -8,26 +8,19 @@ using namespace sf;
 class PongStick : public RectangleShape
 {
 private:
-	static int PlayerCount; //게임에 접속된 플레이어의 수
-	const static int StickSpeed = 300; //스틱의 이동 속도
+	const static int StickSpeed = 300; // 스틱의 이동 속도
 
 public:
-	Vector2f StickPosition; //스틱의 위치 (X좌표, Y좌표)
-	Vector2f StickSize; //스틱의 크기 (가로 길이, 세로 길이)
+	const static int defaultPongStickWidth = 10;
+	const static int defaultPongStickHeight = 70;
+
+	int PlayerType;	// 스틱을 조종하는 플레이어의 타입, PlayerType enum으로 지정
 	Vector2f velocity;
 
-
-	PongStick();
-	PongStick(Vector2f Position, Vector2f Size);
+	PongStick(Vector2f Position, int PlayerType);
+	PongStick(Vector2f Size, Vector2f Position, int PlayerType);
 	~PongStick();
 
-
-	/// <summary>
-	/// 
-	/// </summary>
-	/// <param name="VerticalDirection"></param>
-	/// <param name="DeltaTime"></param>
 	void StickVerticalMove(int VerticalDirection, float DeltaTime);	
-
 };
 

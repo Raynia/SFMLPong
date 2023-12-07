@@ -1,14 +1,15 @@
 ﻿#include "PongStick.h"
 
-int PongStick::PlayerCount = 0;
-
-PongStick::PongStick() {}
-
-PongStick::PongStick(Vector2f Position, Vector2f Size)
-	: StickPosition(Position), StickSize(Size)
+PongStick::PongStick(Vector2f Position, int PlayerType) : PlayerType(PlayerType)
 {
+	this->setSize(Vector2f(defaultPongStickWidth, defaultPongStickHeight));
 	this->setPosition(Position);
+}
+
+PongStick::PongStick(Vector2f Size, Vector2f Position, int PlayerType) :PlayerType(PlayerType)
+{
 	this->setSize(Size);
+	this->setPosition(Position);
 }
 
 PongStick::~PongStick() {}
