@@ -5,16 +5,16 @@ using namespace std;
 using namespace sf;
 
 
-// ÇÃ·¹ÀÌ¾î°¡ ¿òÁ÷ÀÌ´Â ½ºÆ½ÀÌ Á¤ÀÇµÈ Å¬·¡½º
+// í”Œë ˆì´ì–´ê°€ ì›€ì§ì´ëŠ” ìŠ¤í‹±ì´ ì •ì˜ëœ í´ë˜ìŠ¤
 class PongStick : public RectangleShape
 {
 private:
-	static int PlayerCount; //°ÔÀÓ¿¡ Á¢¼ÓµÈ ÇÃ·¹ÀÌ¾îÀÇ ¼ö
-	const static int StickSpeed = 300; //½ºÆ½ÀÇ ÀÌµ¿ ¼Óµµ
+	static int PlayerCount; //ê²Œì„ì— ì ‘ì†ëœ í”Œë ˆì´ì–´ì˜ ìˆ˜
+	const static int StickSpeed = 300; //ìŠ¤í‹±ì˜ ì´ë™ ì†ë„
 
 public:
-	Vector2f StickPosition; //½ºÆ½ÀÇ À§Ä¡ (XÁÂÇ¥, YÁÂÇ¥)
-	Vector2f StickSize; //½ºÆ½ÀÇ Å©±â (°¡·Î ±æÀÌ, ¼¼·Î ±æÀÌ)
+	Vector2f StickPosition; //ìŠ¤í‹±ì˜ ìœ„ì¹˜ (Xì¢Œí‘œ, Yì¢Œí‘œ)
+	Vector2f StickSize; //ìŠ¤í‹±ì˜ í¬ê¸° (ê°€ë¡œ ê¸¸ì´, ì„¸ë¡œ ê¸¸ì´)
 	Vector2f velocity;
 
 

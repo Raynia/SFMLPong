@@ -9,13 +9,9 @@ PongStick::PongStick(Vector2f Position, Vector2f Size)
 {
 	this->setPosition(Position);
 	this->setSize(Size);
-	PlayerCount++;
 }
 
-PongStick::~PongStick()
-{
-	PlayerCount--;
-}
+PongStick::~PongStick() {}
 
 void PongStick::StickVerticalMove(int VerticalDirection, float DeltaTime)
 {

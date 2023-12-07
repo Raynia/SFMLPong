@@ -1,4 +1,5 @@
 #pragma once
+
 enum VerticalDirection
 {
 	Up = -1,
