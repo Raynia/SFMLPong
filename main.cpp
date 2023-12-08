@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <random>
+#include <vector>
 
 #include <windows.h>
 
@@ -25,7 +26,7 @@ int main()
 
 	Uint32 windowWidth = 1280U; //윈도우 너비
 	Uint32 windowHeight = 720U; //윈도우 높이
-	String windowTitle(string("Pong")); //윈도우 타이틀
+	String windowTitle("Pong"); //윈도우 타이틀
 
 	// 윈도우 컨텍스트 설정입니다
 	// \param depthBits: detph buffer 비트
@@ -50,8 +51,6 @@ int main()
 		MessageBox(NULL, TEXT("Cannot find font"), TEXT("Error"), MB_ICONERROR);
 		return EXIT_FAILURE;
 	}
-
-	Text text("Hello SFML!", font, 30U);
 
 	//////////////////////////////////////////
 	//
@@ -80,15 +79,17 @@ int main()
 
 	random_device rd;
 	mt19937_64 gen(rd());
-	uniform_real_distribution<> dist(-5.0f, -1.0f);
+	uniform_real_distribution<> dist(-5.0f, 5.0f);
 
 	const Vector2u windowSize = window.getSize();
-	
+	const float windowSize_x = static_cast< float >( windowSize.x );
+	const float windowSize_y = static_cast< float >( windowSize.y );
+
 	// 스틱 오브젝트
 
-	const float leftSideStick = static_cast< float >( windowSize.x ) * 0.1f;
-	const float rightSideStick = static_cast< float >( windowSize.x ) * 0.9f;
-	const float middleOfStickPositonY = ( static_cast< float >( windowSize.y ) - PongStick::defaultPongStickHeight ) / 2;
+	const float leftSideStick = windowSize_x * 0.1f;
+	const float rightSideStick = windowSize_x * 0.9f;
+	const float middleOfStickPositonY = ( windowSize_y - PongStick::defaultPongStickHeight ) / 2;
 
 	const Vector2f pongLeftStickPosition(leftSideStick, middleOfStickPositonY);
 	const Vector2f pongRightStickPosition(rightSideStick, middleOfStickPositonY);
@@ -96,16 +97,21 @@ int main()
 	PongStick PongStick1(pongLeftStickPosition, PlayerType::Human);
 	PongStick PongStick2(pongRightStickPosition, PlayerType::Computer);
 
-	FloatRect stickArea;
+	FloatRect stickAreaTest;
+	vector<FloatRect> stickArea;
 
 	// 공 오브젝트
-	
+
+	Vector2f ballInitPosition;
+
 	CircleShape ball;
+
 	ball.setRadius(10.0f);
-	ball.setPosition(( windowSize.x - ball.getRadius() ) / 2, ( windowSize.y - ball.getRadius() ) / 2);
+	ballInitPosition = Vector2f(( windowSize_x - ball.getRadius() ) / 2, ( windowSize_y - ball.getRadius() ) / 2);
+	ball.setPosition(ballInitPosition);
 
 	//Vector2f ballMovementOffest(static_cast< float >( dist(gen) ), static_cast< float >( dist(gen) ));
-	Vector2f ballMovementOffest(-5.f, 0.f);
+	Vector2f ballMovementOffest(-5.f, 5.f);
 
 	FloatRect ballArea;
 
@@ -114,13 +120,32 @@ int main()
 	int leftSideScore = 0;
 	int rightSideScore = 0;
 	unsigned int scoreTextSize = 40U;
-	Vector2f leftSideScoreTextPosition(static_cast< float >( windowSize.x ) * 0.4f, 20.f);
-	Vector2f rightSideScoreTextPosition(static_cast< float >( windowSize.x ) * 0.6f, 20.f);
+	Vector2f leftSideScoreTextPosition(windowSize_x * 0.4f, 20.f);
+	Vector2f rightSideScoreTextPosition(windowSize_x * 0.6f, 20.f);
 
 	Text leftSideScoreText(to_string(leftSideScore), font, scoreTextSize);
 	Text rightSideScoreText(to_string(rightSideScore), font, scoreTextSize);
 	leftSideScoreText.setPosition(leftSideScoreTextPosition);
 	rightSideScoreText.setPosition(rightSideScoreTextPosition);
+
+	// 화면 상하에 위치한 충돌 감지용 오브젝트
+	// 공이 충돌하면 y축 이동 방향 반전
+	Vector2f updownWallSize(windowSize_x, 1);
+	Vector2f upWallPosition(0, -( updownWallSize.y ));
+	Vector2f downWallPosition(0, windowSize_y);
+	vector<FloatRect> updownWall;
+	updownWall.push_back(FloatRect(upWallPosition, updownWallSize));
+	updownWall.push_back(FloatRect(downWallPosition, updownWallSize));
+
+
+	// 화면 좌우에 위치한 충돌 감지용 오브젝트
+	// 공이 충돌하면 공의 위치 초기화, 점수 1점 획득
+	Vector2f sideWallSize(1, windowSize_y);
+	Vector2f leftSideWallPosition(-( sideWallSize.x ), 0);
+	Vector2f rightSideWallPosition(windowSize_x, 0);
+	vector<FloatRect> sideWall;
+	sideWall.push_back(FloatRect(leftSideWallPosition, sideWallSize));
+	sideWall.push_back(FloatRect(rightSideWallPosition, sideWallSize));
 
 	///////////////////////////////////////////
 	//
@@ -130,7 +155,6 @@ int main()
 	//
 	///////////////////////////////////////////
 
-	std::cout << "Window Size : (" << windowSize.x << ", " << windowSize.y << ")" << std::endl;
 
 	///////////////////////////////////////////
 	// 
@@ -183,15 +207,10 @@ int main()
 					window.close();
 					break;
 
-				case Keyboard::Add:
-					leftSideScoreText.setString(to_string(++leftSideScore));
-					break;
-
 				default:
 					break;
 				}
 
-				std::cout << "Key Pressed! - " << event.key.code << std::endl;
 				break;
 
 			default:
@@ -229,16 +248,44 @@ int main()
 		// 
 		///////////////////////////////////////////
 
-		stickArea = PongStick1.getGlobalBounds();
+		// 움직이는 오브젝트의 위치를 갱신합니다
+
 		ballArea = ball.getGlobalBounds();
-		if ( ballArea.intersects(stickArea) )
+
+		stickArea.push_back(PongStick1.getGlobalBounds());
+		stickArea.push_back(PongStick2.getGlobalBounds());
+
+		for ( auto& stick : stickArea )
 		{
-			ballMovementOffest.x = -ballMovementOffest.x;
+			if ( stick.intersects(ballArea) )
+			{
+				ballMovementOffest.x = -ballMovementOffest.x;
+			}
+		}
+
+		for ( auto& wall : updownWall )
+		{
+			if ( wall.intersects(ballArea) )
+			{
+				ballMovementOffest.y = -ballMovementOffest.y;
+			}
+		}
+
+		for ( auto& wall : sideWall )
+		{
+			if ( wall.intersects(ballArea) )
+			{
+				ball.setPosition(ballInitPosition); // 공 위치 초기화
+				ballMovementOffest.x = -ballMovementOffest.x;// 공 방향 수정
+				ballMovementOffest.y = static_cast< float >( dist(gen) );// 공 방향 수정
+
+				// 점수 획득
+			}
 		}
 
 		// 공은 항상 움직이는 상태이기 때문에,
 		// MovementOffset 값만 변경해서 공의 궤적만 변경합니다
-		ball.move(ballMovementOffest); 
+		ball.move(ballMovementOffest);
 
 		///////////////////////////////////////////
 		//
@@ -247,13 +294,10 @@ int main()
 		// 생성된 오브젝트를 윈도우에 그려서 디스플레이로 출력시킵니다
 		// 이곳에서 그려지지 않은 오브젝트는 출력되지 않습니다
 		// 
-		// 오브젝트는 Scene 단위로 그립니다
-		// 
 		///////////////////////////////////////////
 
 		window.clear();
 
-		window.draw(text);
 		window.draw(PongStick1);
 		window.draw(PongStick2);
 		window.draw(ball);
