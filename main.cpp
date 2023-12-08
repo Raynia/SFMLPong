@@ -1,10 +1,13 @@
-﻿#include <SFML/System.hpp>
+#include <SFML/System.hpp>
 #include <box2d/box2d.h>
 
 #include <iostream>
+#include <random>
+
 #include <windows.h>
 
 #include "PongStick.h"
+#include "PongBall.h"
 #include "EnumLibrary.h"
 
 using namespace std;
@@ -42,7 +45,7 @@ int main()
 
 	// 폰트
 	Font font;
-	if (!font.loadFromFile("c:/windows/fonts/arial.ttf"))
+	if ( !font.loadFromFile("c:/windows/fonts/arial.ttf") )
 	{
 		MessageBox(NULL, TEXT("Cannot find font"), TEXT("Error"), MB_ICONERROR);
 		return EXIT_FAILURE;
@@ -66,26 +69,42 @@ int main()
 	// 오브젝트 설정
 	// 
 	// 게임 내에서 사용되는 오브젝트를 설정합니다
-	// 가능하다면 클래스를 통해 인스턴스를 생성해야 합니다
 	//
 	///////////////////////////////////////////
 
 	Clock UserClock;
 
+	random_device rd;
+	mt19937_64 gen(rd());
+	uniform_real_distribution<> dist(0.01, 0.10);
+
 	const Vector2u windowSize = window.getSize();
-	const float leftSideStick = static_cast<float>(windowSize.x) * 0.1f;
-	const float rightSideStick = static_cast<float>(windowSize.x) * 0.9f;
-	const float middleOfStickPositonY = (static_cast<float>(windowSize.y) - PongStick::defaultPongStickHeight) / 2;
+	const float leftSideStick = static_cast< float >( windowSize.x ) * 0.1f;
+	const float rightSideStick = static_cast< float >( windowSize.x ) * 0.9f;
+	const float middleOfStickPositonY = ( static_cast< float >( windowSize.y ) - PongStick::defaultPongStickHeight ) / 2;
 
 	const Vector2f pongLeftStickPosition(leftSideStick, middleOfStickPositonY);
 	const Vector2f pongRightStickPosition(rightSideStick, middleOfStickPositonY);
 
-	PongStick PongStick1 = PongStick(pongLeftStickPosition, PlayerType::Human);
-	PongStick PongStick2 = PongStick(pongRightStickPosition, PlayerType::Computer);
+	PongStick PongStick1(pongLeftStickPosition, PlayerType::Human);
+	PongStick PongStick2(pongRightStickPosition, PlayerType::Computer);
 
 	CircleShape ball;
 	ball.setRadius(10.0f);
-	ball.setPosition((windowSize.x - ball.getRadius()) / 2, (windowSize.y - ball.getRadius()) / 2);
+	ball.setPosition(( windowSize.x - ball.getRadius() ) / 2, ( windowSize.y - ball.getRadius() ) / 2);
+	Vector2f ballMovementOffest(static_cast< float >( dist(gen) ), static_cast< float >( dist(gen) ));
+	bool isBallCollide = false;
+
+	int leftSideScore = 0;
+	int rightSideScore = 0;
+	unsigned int scoreTextSize = 40U;
+	Vector2f leftSideScoreTextPosition(static_cast< float >( windowSize.x ) * 0.4f, 20.f);
+	Vector2f rightSideScoreTextPosition(static_cast< float >( windowSize.x ) * 0.6f, 20.f);
+
+	Text leftSideScoreText(to_string(leftSideScore), font, scoreTextSize);
+	Text rightSideScoreText(to_string(rightSideScore), font, scoreTextSize);
+	leftSideScoreText.setPosition(leftSideScoreTextPosition);
+	rightSideScoreText.setPosition(rightSideScoreTextPosition);
 
 	///////////////////////////////////////////
 	//
@@ -116,7 +135,7 @@ int main()
 	// 
 	///////////////////////////////////////////
 
-	while (window.isOpen())
+	while ( window.isOpen() )
 	{
 		///////////////////////////////////////////
 		// 
@@ -128,19 +147,33 @@ int main()
 
 		Event event;
 
-		while (window.pollEvent(event))
+		while ( window.pollEvent(event) )
 		{
-			switch (event.type)
+			switch ( event.type )
 			{
 			case Event::Closed:
 				window.close();
 				break;
 
 			case Event::KeyPressed:
-				if (event.key.code == Keyboard::Unknown) //Except unknown key
-					; //do nothing
-				else if (event.key.code == Keyboard::Escape)
+
+				switch ( event.key.code )
+				{
+				case Keyboard::Unknown:
+					//Do Nothing
+					break;
+
+				case Keyboard::Escape:
 					window.close();
+					break;
+
+				case Keyboard::Add:
+					leftSideScoreText.setString(to_string(++leftSideScore));
+					break;
+
+				default:
+					break;
+				}
 
 				std::cout << "Key Pressed! - " << event.key.code << std::endl;
 				break;
@@ -148,6 +181,15 @@ int main()
 			default:
 				break;
 			}
+		}
+
+		if ( isBallCollide )
+		{
+			isBallCollide = false;
+		}
+		else
+		{
+			ball.move(ballMovementOffest);
 		}
 
 		///////////////////////////////////////////
@@ -163,11 +205,11 @@ int main()
 
 		float DeltaTime = UserClock.restart().asSeconds();
 
-		if (Keyboard::isKeyPressed(Keyboard::Up))
+		if ( Keyboard::isKeyPressed(Keyboard::Up) )
 		{
 			PongStick1.StickVerticalMove(VerticalDirection::Up, DeltaTime);
 		}
-		if (Keyboard::isKeyPressed(Keyboard::Down))
+		if ( Keyboard::isKeyPressed(Keyboard::Down) )
 		{
 			PongStick1.StickVerticalMove(VerticalDirection::Down, DeltaTime);
 		}
@@ -189,6 +231,9 @@ int main()
 		window.draw(PongStick1);
 		window.draw(PongStick2);
 		window.draw(ball);
+
+		window.draw(leftSideScoreText);
+		window.draw(rightSideScoreText);
 
 		window.display();
 	}
