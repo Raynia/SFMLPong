@@ -155,6 +155,7 @@
     <ClInclude Include="EnumLibrary.h" />
     <ClInclude Include="PongBall.h" />
     <ClInclude Include="PongStick.h" />
+    <ClInclude Include="SideWall.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

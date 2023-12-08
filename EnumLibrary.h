@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 enum VerticalDirection
 {
@@ -6,7 +6,7 @@ enum VerticalDirection
 	Down = 1,
 };
 
-enum HorizontalDirection
+enum class HorizontalDirection : int
 {
 	Left = 1,
 	Right = -1,
@@ -24,6 +24,13 @@ enum StickLocation
 	RightSide = 1,
 };
 
+enum class WallSide : int
+{
+	Up = 1,
+	Down = 2,
+	Left = 3,
+	Right = 4,
+};
 
 
 

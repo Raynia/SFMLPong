@@ -9,6 +9,8 @@
 
 #include "PongStick.h"
 #include "PongBall.h"
+#include "SideWall.h"
+
 #include "EnumLibrary.h"
 
 using namespace std;
@@ -103,9 +105,7 @@ int main()
 	// 공 오브젝트
 
 	Vector2f ballInitPosition;
-
 	CircleShape ball;
-
 	ball.setRadius(10.0f);
 	ballInitPosition = Vector2f(( windowSize_x - ball.getRadius() ) / 2, ( windowSize_y - ball.getRadius() ) / 2);
 	ball.setPosition(ballInitPosition);
@@ -130,22 +130,24 @@ int main()
 
 	// 화면 상하에 위치한 충돌 감지용 오브젝트
 	// 공이 충돌하면 y축 이동 방향 반전
-	Vector2f updownWallSize(windowSize_x, 1);
-	Vector2f upWallPosition(0, -( updownWallSize.y ));
-	Vector2f downWallPosition(0, windowSize_y);
+	Vector2f updownAreaSize(windowSize_x, 1);
+	Vector2f upAreaPosition(0, -( updownAreaSize.y ));
+	Vector2f downAreaPosition(0, windowSize_y);
 	vector<FloatRect> updownWall;
-	updownWall.push_back(FloatRect(upWallPosition, updownWallSize));
-	updownWall.push_back(FloatRect(downWallPosition, updownWallSize));
+	updownWall.push_back(FloatRect(upAreaPosition, updownAreaSize));
+	updownWall.push_back(FloatRect(downAreaPosition, updownAreaSize));
 
 
 	// 화면 좌우에 위치한 충돌 감지용 오브젝트
 	// 공이 충돌하면 공의 위치 초기화, 점수 1점 획득
-	Vector2f sideWallSize(1, windowSize_y);
-	Vector2f leftSideWallPosition(-( sideWallSize.x ), 0);
-	Vector2f rightSideWallPosition(windowSize_x, 0);
-	vector<FloatRect> sideWall;
-	sideWall.push_back(FloatRect(leftSideWallPosition, sideWallSize));
-	sideWall.push_back(FloatRect(rightSideWallPosition, sideWallSize));
+	Vector2f sideAreaSize(1, windowSize_y);
+	Vector2f leftSideAreaPosition(-( sideAreaSize.x ), 0);
+	Vector2f rightSideAreaPosition(windowSize_x, 0);
+	vector<SideWall> sideWall;	
+
+	sideWall.push_back(SideWall(FloatRect(leftSideAreaPosition, sideAreaSize), WallSide::Left));
+	sideWall.push_back(SideWall(FloatRect(rightSideAreaPosition, sideAreaSize), WallSide::Right));
+
 
 	///////////////////////////////////////////
 	//
@@ -255,7 +257,7 @@ int main()
 		stickArea.push_back(PongStick1.getGlobalBounds());
 		stickArea.push_back(PongStick2.getGlobalBounds());
 
-		for ( auto& stick : stickArea )
+		for ( const auto& stick : stickArea )
 		{
 			if ( stick.intersects(ballArea) )
 			{
@@ -263,7 +265,7 @@ int main()
 			}
 		}
 
-		for ( auto& wall : updownWall )
+		for ( const auto& wall : updownWall )
 		{
 			if ( wall.intersects(ballArea) )
 			{
@@ -271,15 +273,30 @@ int main()
 			}
 		}
 
-		for ( auto& wall : sideWall )
+		for ( const auto& wall : sideWall )
 		{
-			if ( wall.intersects(ballArea) )
+			if ( wall.wallArea.intersects(ballArea) )
 			{
 				ball.setPosition(ballInitPosition); // 공 위치 초기화
 				ballMovementOffest.x = -ballMovementOffest.x;// 공 방향 수정
 				ballMovementOffest.y = static_cast< float >( dist(gen) );// 공 방향 수정
 
-				// 점수 획득
+				//충돌한 측면 벽의 위치에 따라, 상대편의 점수가 1점 씩 올라갑니다
+				switch ( wall.wallSide )
+				{
+				case WallSide::Left:
+					rightSideScoreText.setString(to_string(++rightSideScore));
+					break;
+
+				case WallSide::Right:
+					leftSideScoreText.setString(to_string(++leftSideScore));
+					break;
+
+				default:
+					break;
+				}
+
+				break;
 			}
 		}
 
