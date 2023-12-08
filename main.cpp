@@ -63,6 +63,7 @@ int main()
 
 	RenderWindow window;
 	window.create(VideoMode(windowWidth, windowHeight), windowTitle, windowStyle, windowSettings);
+	window.setFramerateLimit(60);
 
 	///////////////////////////////////////////
 	//
@@ -72,13 +73,19 @@ int main()
 	//
 	///////////////////////////////////////////
 
+	// 범용 변수
+
 	Clock UserClock;
+	float DeltaTime = 0.f;
 
 	random_device rd;
 	mt19937_64 gen(rd());
-	uniform_real_distribution<> dist(0.01, 0.10);
+	uniform_real_distribution<> dist(-5.0f, -1.0f);
 
 	const Vector2u windowSize = window.getSize();
+	
+	// 스틱 오브젝트
+
 	const float leftSideStick = static_cast< float >( windowSize.x ) * 0.1f;
 	const float rightSideStick = static_cast< float >( windowSize.x ) * 0.9f;
 	const float middleOfStickPositonY = ( static_cast< float >( windowSize.y ) - PongStick::defaultPongStickHeight ) / 2;
@@ -89,11 +96,20 @@ int main()
 	PongStick PongStick1(pongLeftStickPosition, PlayerType::Human);
 	PongStick PongStick2(pongRightStickPosition, PlayerType::Computer);
 
+	FloatRect stickArea;
+
+	// 공 오브젝트
+	
 	CircleShape ball;
 	ball.setRadius(10.0f);
 	ball.setPosition(( windowSize.x - ball.getRadius() ) / 2, ( windowSize.y - ball.getRadius() ) / 2);
-	Vector2f ballMovementOffest(static_cast< float >( dist(gen) ), static_cast< float >( dist(gen) ));
-	bool isBallCollide = false;
+
+	//Vector2f ballMovementOffest(static_cast< float >( dist(gen) ), static_cast< float >( dist(gen) ));
+	Vector2f ballMovementOffest(-5.f, 0.f);
+
+	FloatRect ballArea;
+
+	// 스코어 보드 텍스트 오브젝트
 
 	int leftSideScore = 0;
 	int rightSideScore = 0;
@@ -183,15 +199,6 @@ int main()
 			}
 		}
 
-		if ( isBallCollide )
-		{
-			isBallCollide = false;
-		}
-		else
-		{
-			ball.move(ballMovementOffest);
-		}
-
 		///////////////////////////////////////////
 		// 
 		// 키보드 및 마우스 이벤트 핸들러
@@ -203,7 +210,7 @@ int main()
 		// 
 		///////////////////////////////////////////
 
-		float DeltaTime = UserClock.restart().asSeconds();
+		DeltaTime = UserClock.restart().asSeconds();
 
 		if ( Keyboard::isKeyPressed(Keyboard::Up) )
 		{
@@ -213,6 +220,25 @@ int main()
 		{
 			PongStick1.StickVerticalMove(VerticalDirection::Down, DeltaTime);
 		}
+
+		///////////////////////////////////////////
+		// 
+		// 콜리전
+		// 
+		// 오브젝트 간의 충돌에 대해 처리합니다 
+		// 
+		///////////////////////////////////////////
+
+		stickArea = PongStick1.getGlobalBounds();
+		ballArea = ball.getGlobalBounds();
+		if ( ballArea.intersects(stickArea) )
+		{
+			ballMovementOffest.x = -ballMovementOffest.x;
+		}
+
+		// 공은 항상 움직이는 상태이기 때문에,
+		// MovementOffset 값만 변경해서 공의 궤적만 변경합니다
+		ball.move(ballMovementOffest); 
 
 		///////////////////////////////////////////
 		//
