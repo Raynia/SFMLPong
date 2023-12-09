@@ -6,10 +6,10 @@ enum VerticalDirection
 	Down = 1,
 };
 
-enum class HorizontalDirection : int
+enum HorizontalDirection
 {
-	Left = 1,
-	Right = -1,
+	Left = -1,
+	Right = 1,
 };
 
 enum PlayerType

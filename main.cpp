@@ -81,7 +81,7 @@ int main()
 
 	random_device rd;
 	mt19937_64 gen(rd());
-	uniform_real_distribution<> dist(-5.0f, 5.0f);
+	uniform_real_distribution<> dist(-1.0f, 1.0f);
 
 	const Vector2u windowSize = window.getSize();
 	const float windowSize_x = static_cast< float >( windowSize.x );
@@ -104,16 +104,15 @@ int main()
 
 	// 공 오브젝트
 
-	Vector2f ballInitPosition;
-	CircleShape ball;
-	ball.setRadius(10.0f);
-	ballInitPosition = Vector2f(( windowSize_x - ball.getRadius() ) / 2, ( windowSize_y - ball.getRadius() ) / 2);
-	ball.setPosition(ballInitPosition);
+	const float ballRadius = 10.f;
+	const float ballSpeed = 300.f;
+	const Vector2f ballInitPosition = Vector2f(( windowSize_x - ballRadius ) / 2, ( windowSize_y - ballRadius ) / 2);;
+
+	PongBall pongBall(ballInitPosition, 10.f, ballSpeed);
 
 	//Vector2f ballMovementOffest(static_cast< float >( dist(gen) ), static_cast< float >( dist(gen) ));
 	//Vector2f ballMovementOffest(-5.f, 5.f);
-	Vector2f ballMovementOffest(-5.f, 5.f);
-
+	Vector2f ballMovementOffest(-1.f, static_cast<float>(dist(gen)));
 
 	FloatRect ballArea;
 
@@ -181,8 +180,6 @@ int main()
 
 	while ( window.isOpen() )
 	{
-
-
 		///////////////////////////////////////////
 		// 
 		// 통상 이벤트 핸들러
@@ -265,7 +262,7 @@ int main()
 
 		// 움직이는 오브젝트의 위치를 갱신합니다
 
-		ballArea = ball.getGlobalBounds();
+		ballArea = pongBall.getGlobalBounds();
 
 		stickArea.push_back(PongStick1.getGlobalBounds());
 		stickArea.push_back(PongStick2.getGlobalBounds());
@@ -274,7 +271,7 @@ int main()
 		{
 			if ( stick.intersects(ballArea) )
 			{
-				ballMovementOffest.x = -ballMovementOffest.x;
+				//ballMovementOffest.x *= -1;
 				break;
 			}
 		}
@@ -283,7 +280,7 @@ int main()
 		{
 			if ( wall.intersects(ballArea) )
 			{
-				ballMovementOffest.y = -ballMovementOffest.y;
+				//ballMovementOffest.y *= -1;
 				break;
 			}
 		}
@@ -292,9 +289,9 @@ int main()
 		{
 			if ( wall.wallArea.intersects(ballArea) )
 			{
-				ball.setPosition(ballInitPosition); // 공 위치 초기화
-				ballMovementOffest.x = -ballMovementOffest.x;// 공 방향 수정
-				ballMovementOffest.y = static_cast< float >( dist(gen) );// 공 방향 수정
+				pongBall.ResetPosition(); // 공 위치 초기화
+				//ballMovementOffest.x = -ballMovementOffest.x;// 공 방향 수정
+				//ballMovementOffest.y = static_cast< float >( dist(gen) );// 공 방향 수정
 
 				//충돌한 측면 벽의 위치에 따라, 상대편의 점수가 1점 씩 올라갑니다
 				switch ( wall.wallSide )
@@ -315,8 +312,6 @@ int main()
 			}
 		}
 
-
-
 		///////////////////////////////////////////
 		//
 		// 오브젝트 그리기
@@ -330,7 +325,7 @@ int main()
 
 		window.draw(PongStick1);
 		window.draw(PongStick2);
-		window.draw(ball);
+		window.draw(pongBall);
 
 		window.draw(leftSideScoreText);
 		window.draw(rightSideScoreText);
@@ -339,7 +334,7 @@ int main()
 
 		// 공은 항상 움직이는 상태이기 때문에,
 		// MovementOffset 값만 변경해서 공의 궤적만 변경합니다
-		ball.move(ballMovementOffest);
+		pongBall.MoveBall(1, 1, DeltaTime);
 	}
 
 	///////////////////////////////////////////
