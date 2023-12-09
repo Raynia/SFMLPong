@@ -2,8 +2,6 @@
 
 #include <SFML/Graphics.hpp>
 
-#define DIRECTION_CHANGE -1
-
 using namespace sf;
 
 class PongBall : public CircleShape
@@ -15,7 +13,10 @@ public:
 	const Vector2f velocityBaseOffset;
 	Vector2f velocity;
 
-	PongBall(Vector2f initPosition, float radius, float ballSpeed) : initPosition(initPosition), ballSpeed(ballSpeed), velocityBaseOffset(1.6f, 1.0f)
+	int currentVerticalDirection;
+	int currentHorizontalDirection;
+
+	PongBall(Vector2f initPosition, float radius, float ballSpeed) : initPosition(initPosition), ballSpeed(ballSpeed), velocityBaseOffset(1.f, 1.f)
 	{
 		this->ResetPosition();
 		this->setRadius(radius);
@@ -24,11 +25,11 @@ public:
 	{
 		this->setPosition(initPosition);
 	}	
-	void MoveBall(int verticalDirction, int horizontalDirection, float deltaTime)
+	void MoveBall(Vector2f velocityOffset, float deltaTime)
 	{
 		this->velocity = velocityBaseOffset;
-		velocity.x *= horizontalDirection * ballSpeed * deltaTime;
-		velocity.y *= verticalDirction * ballSpeed * deltaTime;
+		velocity.x *= velocityOffset.x * ballSpeed * deltaTime;
+		velocity.y *= velocityOffset.y * ballSpeed * deltaTime;
 		this->move(velocity);
 	}
 };

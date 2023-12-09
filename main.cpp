@@ -81,7 +81,8 @@ int main()
 
 	random_device rd;
 	mt19937_64 gen(rd());
-	uniform_real_distribution<> dist(-1.0f, 1.0f);
+	uniform_int_distribution<> intDist(0, 1);
+	uniform_real_distribution<> floatDist;
 
 	const Vector2u windowSize = window.getSize();
 	const float windowSize_x = static_cast< float >( windowSize.x );
@@ -105,14 +106,16 @@ int main()
 	// 공 오브젝트
 
 	const float ballRadius = 10.f;
-	const float ballSpeed = 300.f;
+	const float ballSpeed = 500.f;
 	const Vector2f ballInitPosition = Vector2f(( windowSize_x - ballRadius ) / 2, ( windowSize_y - ballRadius ) / 2);;
 
 	PongBall pongBall(ballInitPosition, 10.f, ballSpeed);
 
-	//Vector2f ballMovementOffest(static_cast< float >( dist(gen) ), static_cast< float >( dist(gen) ));
-	//Vector2f ballMovementOffest(-5.f, 5.f);
-	Vector2f ballMovementOffest(-1.f, static_cast<float>(dist(gen)));
+	float ballMaxOffsetRangeOfX = ( windowSize_x - leftSideStick ) / windowSize_y;
+	float ballMaxOffsetRangeOfY = windowSize_y / windowSize_y;
+	uniform_real_distribution<> ballYOffestDist(-ballMaxOffsetRangeOfY, ballMaxOffsetRangeOfY);
+
+	Vector2f ballVelocityOffest(ballMaxOffsetRangeOfX, static_cast< float >( ballYOffestDist(gen) ));
 
 	FloatRect ballArea;
 
@@ -144,7 +147,7 @@ int main()
 	Vector2f sideAreaSize(1, windowSize_y);
 	Vector2f leftSideAreaPosition(-( sideAreaSize.x ), 0);
 	Vector2f rightSideAreaPosition(windowSize_x, 0);
-	vector<SideWall> sideWall;	
+	vector<SideWall> sideWall;
 
 	sideWall.push_back(SideWall(FloatRect(leftSideAreaPosition, sideAreaSize), WallSide::Left));
 	sideWall.push_back(SideWall(FloatRect(rightSideAreaPosition, sideAreaSize), WallSide::Right));
@@ -271,7 +274,7 @@ int main()
 		{
 			if ( stick.intersects(ballArea) )
 			{
-				//ballMovementOffest.x *= -1;
+				ballVelocityOffest.x *= -1;
 				break;
 			}
 		}
@@ -280,7 +283,7 @@ int main()
 		{
 			if ( wall.intersects(ballArea) )
 			{
-				//ballMovementOffest.y *= -1;
+				ballVelocityOffest.y *= -1;
 				break;
 			}
 		}
@@ -290,8 +293,8 @@ int main()
 			if ( wall.wallArea.intersects(ballArea) )
 			{
 				pongBall.ResetPosition(); // 공 위치 초기화
-				//ballMovementOffest.x = -ballMovementOffest.x;// 공 방향 수정
-				//ballMovementOffest.y = static_cast< float >( dist(gen) );// 공 방향 수정
+				ballVelocityOffest.x *= -1;// 공 방향 수정
+				ballVelocityOffest.y = static_cast< float >( ballYOffestDist(gen) );// 공 방향 수정
 
 				//충돌한 측면 벽의 위치에 따라, 상대편의 점수가 1점 씩 올라갑니다
 				switch ( wall.wallSide )
@@ -334,7 +337,7 @@ int main()
 
 		// 공은 항상 움직이는 상태이기 때문에,
 		// MovementOffset 값만 변경해서 공의 궤적만 변경합니다
-		pongBall.MoveBall(1, 1, DeltaTime);
+		pongBall.MoveBall(ballVelocityOffest, DeltaTime);
 	}
 
 	///////////////////////////////////////////
