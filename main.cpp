@@ -1,4 +1,5 @@
 #include <SFML/System.hpp>
+#include <SFML/Audio.hpp>
 #include <box2d/box2d.h>
 
 #include <iostream>
@@ -53,6 +54,18 @@ int main()
 		MessageBox(NULL, TEXT("Cannot find font"), TEXT("Error"), MB_ICONERROR);
 		return EXIT_FAILURE;
 	}
+
+	// 사운드
+	SoundBuffer soundEffectBlip;
+	SoundBuffer soundEffectScore;
+	Sound soundEffect;
+
+	if ( !soundEffectBlip.loadFromFile("sound/pongblip.wav ") || !soundEffectScore.loadFromFile("sound/scoreget.wav ") )
+	{
+		return EXIT_FAILURE;
+	}
+
+	soundEffect.setVolume(50.f);
 
 	//////////////////////////////////////////
 	//
@@ -273,6 +286,9 @@ int main()
 			if ( stick.intersects(ballArea) )
 			{
 				ballVelocityOffest.x *= -1;
+				soundEffect.resetBuffer();
+				soundEffect.setBuffer(soundEffectBlip);
+				soundEffect.play();
 				break;
 			}
 		}
@@ -291,6 +307,10 @@ int main()
 		{
 			if ( wall.wallArea.intersects(ballArea) )
 			{
+				soundEffect.resetBuffer();
+				soundEffect.setBuffer(soundEffectScore);
+				soundEffect.play();
+
 				pongBall.ResetPosition(); // 공 위치 초기화
 				ballVelocityOffest.x *= -1;// 공 방향 수정
 				ballVelocityOffest.y = static_cast< float >( ballYOffestDist(gen) );// 공 방향 수정
