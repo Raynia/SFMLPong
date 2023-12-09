@@ -15,18 +15,6 @@
 
 using namespace std;
 
-string PrintGlobalBounds(FloatRect floatRect)
-{
-	string returnValue = "";
-	returnValue += 
-		"Top: "+ to_string(floatRect.top) + " " +
-		"Bottom: " + to_string(floatRect.top + floatRect.height) + " " +
-		"Left: " + to_string(floatRect.left) + " " +
-		"Right: " + to_string(floatRect.left + floatRect.width);
-
-	return returnValue;
-}
-
 int main()
 {
 	///////////////////////////////////////////
@@ -118,7 +106,7 @@ int main()
 	// 공 오브젝트
 
 	const float ballRadius = 10.f;
-	const float ballSpeed = 500.f;
+	const float ballSpeed = 300.f;
 	const Vector2f ballInitPosition = Vector2f(( windowSize_x - ballRadius ) / 2, ( windowSize_y - ballRadius ) / 2);;
 
 	PongBall pongBall(ballInitPosition, 10.f, ballSpeed);
@@ -153,7 +141,6 @@ int main()
 	updownWall.push_back(FloatRect(upAreaPosition, updownAreaSize));
 	updownWall.push_back(FloatRect(downAreaPosition, updownAreaSize));
 
-
 	// 화면 좌우에 위치한 충돌 감지용 오브젝트
 	// 공이 충돌하면 공의 위치 초기화, 점수 1점 획득
 	Vector2f sideAreaSize(1, windowSize_y);
@@ -163,7 +150,6 @@ int main()
 
 	sideWall.push_back(SideWall(FloatRect(leftSideAreaPosition, sideAreaSize), WallSide::Left));
 	sideWall.push_back(SideWall(FloatRect(rightSideAreaPosition, sideAreaSize), WallSide::Right));
-
 
 	///////////////////////////////////////////
 	//
@@ -182,16 +168,6 @@ int main()
 	// 모든 변수에 접두사 "test"가 있어야 합니다
 	// 
 	///////////////////////////////////////////
-
-	Text testTextFormat("", font, 25U);
-	Text testLeftStickGlobalBound = testTextFormat;
-	//Text testLeftStickPosition = testTextFormat;
-	Text testRightStickGlobalBound = testTextFormat;
-	testRightStickGlobalBound.setPosition(0.f, testLeftStickGlobalBound.getPosition().y + 30.f);
-	//Text testRighStickPosition = testTextFormat;
-	Text testBallGlobalBound = testTextFormat;
-	testBallGlobalBound.setPosition(0.f, testRightStickGlobalBound.getPosition().y + 30.f);
-	//Text testBallPosition = testTextFormat;
 
 	///////////////////////////////////////////
 	// 
@@ -288,22 +264,19 @@ int main()
 
 
 		stickArea.push_back(PongStick1.getGlobalBounds());
-		testLeftStickGlobalBound.setString(PrintGlobalBounds(PongStick1.getGlobalBounds()));
 		stickArea.push_back(PongStick2.getGlobalBounds());
-		testRightStickGlobalBound.setString(PrintGlobalBounds(PongStick2.getGlobalBounds()));
 
 		ballArea = pongBall.getGlobalBounds();
-		testBallGlobalBound.setString(PrintGlobalBounds(ballArea));
 
 		for ( const auto& stick : stickArea )
 		{
 			if ( stick.intersects(ballArea) )
 			{
 				ballVelocityOffest.x *= -1;
-				cout << PrintGlobalBounds(ballArea) << endl;
 				break;
 			}
 		}
+		stickArea.clear();
 
 		for ( const auto& wall : updownWall )
 		{
@@ -359,15 +332,12 @@ int main()
 		window.draw(leftSideScoreText);
 		window.draw(rightSideScoreText);
 
-		//window.draw(testLeftStickGlobalBound);
-		//window.draw(testRightStickGlobalBound);
-		//window.draw(testBallGlobalBound);
-
 		window.display();
 
 		// 공은 항상 움직이는 상태이기 때문에,
 		// MovementOffset 값만 변경해서 공의 궤적만 변경합니다
 		pongBall.MoveBall(ballVelocityOffest, DeltaTime);
+
 	}
 
 	///////////////////////////////////////////
