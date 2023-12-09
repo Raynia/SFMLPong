@@ -15,6 +15,18 @@
 
 using namespace std;
 
+string PrintGlobalBounds(FloatRect floatRect)
+{
+	string returnValue = "";
+	returnValue += 
+		"Top: "+ to_string(floatRect.top) + " " +
+		"Bottom: " + to_string(floatRect.top + floatRect.height) + " " +
+		"Left: " + to_string(floatRect.left) + " " +
+		"Right: " + to_string(floatRect.left + floatRect.width);
+
+	return returnValue;
+}
+
 int main()
 {
 	///////////////////////////////////////////
@@ -171,6 +183,15 @@ int main()
 	// 
 	///////////////////////////////////////////
 
+	Text testTextFormat("", font, 25U);
+	Text testLeftStickGlobalBound = testTextFormat;
+	//Text testLeftStickPosition = testTextFormat;
+	Text testRightStickGlobalBound = testTextFormat;
+	testRightStickGlobalBound.setPosition(0.f, testLeftStickGlobalBound.getPosition().y + 30.f);
+	//Text testRighStickPosition = testTextFormat;
+	Text testBallGlobalBound = testTextFormat;
+	testBallGlobalBound.setPosition(0.f, testRightStickGlobalBound.getPosition().y + 30.f);
+	//Text testBallPosition = testTextFormat;
 
 	///////////////////////////////////////////
 	// 
@@ -265,16 +286,21 @@ int main()
 
 		// 움직이는 오브젝트의 위치를 갱신합니다
 
-		ballArea = pongBall.getGlobalBounds();
 
 		stickArea.push_back(PongStick1.getGlobalBounds());
+		testLeftStickGlobalBound.setString(PrintGlobalBounds(PongStick1.getGlobalBounds()));
 		stickArea.push_back(PongStick2.getGlobalBounds());
+		testRightStickGlobalBound.setString(PrintGlobalBounds(PongStick2.getGlobalBounds()));
+
+		ballArea = pongBall.getGlobalBounds();
+		testBallGlobalBound.setString(PrintGlobalBounds(ballArea));
 
 		for ( const auto& stick : stickArea )
 		{
 			if ( stick.intersects(ballArea) )
 			{
 				ballVelocityOffest.x *= -1;
+				cout << PrintGlobalBounds(ballArea) << endl;
 				break;
 			}
 		}
@@ -332,6 +358,10 @@ int main()
 
 		window.draw(leftSideScoreText);
 		window.draw(rightSideScoreText);
+
+		//window.draw(testLeftStickGlobalBound);
+		//window.draw(testRightStickGlobalBound);
+		//window.draw(testBallGlobalBound);
 
 		window.display();
 
