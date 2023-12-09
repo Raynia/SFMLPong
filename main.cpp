@@ -111,7 +111,9 @@ int main()
 	ball.setPosition(ballInitPosition);
 
 	//Vector2f ballMovementOffest(static_cast< float >( dist(gen) ), static_cast< float >( dist(gen) ));
+	//Vector2f ballMovementOffest(-5.f, 5.f);
 	Vector2f ballMovementOffest(-5.f, 5.f);
+
 
 	FloatRect ballArea;
 
@@ -179,6 +181,8 @@ int main()
 
 	while ( window.isOpen() )
 	{
+
+
 		///////////////////////////////////////////
 		// 
 		// 통상 이벤트 핸들러
@@ -242,6 +246,15 @@ int main()
 			PongStick1.StickVerticalMove(VerticalDirection::Down, DeltaTime);
 		}
 
+		if ( Keyboard::isKeyPressed(Keyboard::W) )
+		{
+			PongStick2.StickVerticalMove(VerticalDirection::Up, DeltaTime);
+		}
+		if ( Keyboard::isKeyPressed(Keyboard::S) )
+		{
+			PongStick2.StickVerticalMove(VerticalDirection::Down, DeltaTime);
+		}
+
 		///////////////////////////////////////////
 		// 
 		// 콜리전
@@ -262,6 +275,7 @@ int main()
 			if ( stick.intersects(ballArea) )
 			{
 				ballMovementOffest.x = -ballMovementOffest.x;
+				break;
 			}
 		}
 
@@ -270,6 +284,7 @@ int main()
 			if ( wall.intersects(ballArea) )
 			{
 				ballMovementOffest.y = -ballMovementOffest.y;
+				break;
 			}
 		}
 
@@ -300,9 +315,7 @@ int main()
 			}
 		}
 
-		// 공은 항상 움직이는 상태이기 때문에,
-		// MovementOffset 값만 변경해서 공의 궤적만 변경합니다
-		ball.move(ballMovementOffest);
+
 
 		///////////////////////////////////////////
 		//
@@ -323,6 +336,10 @@ int main()
 		window.draw(rightSideScoreText);
 
 		window.display();
+
+		// 공은 항상 움직이는 상태이기 때문에,
+		// MovementOffset 값만 변경해서 공의 궤적만 변경합니다
+		ball.move(ballMovementOffest);
 	}
 
 	///////////////////////////////////////////
