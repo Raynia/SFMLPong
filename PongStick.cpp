@@ -1,4 +1,4 @@
-﻿#include "PongStick.h"
+#include "PongStick.h"
 
 PongStick::PongStick(Vector2f Position, int PlayerType) : PlayerType(PlayerType)
 {

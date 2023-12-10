@@ -9,7 +9,7 @@ class SideWall
 {
 public:
 	FloatRect wallArea;
-	WallSide wallSide; // WallSide enum
+	WallSide wallSide; // 벽의 위치
 
 	SideWall(FloatRect wallArea, WallSide wallSide) : wallArea(wallArea), wallSide(wallSide) {};
 };

@@ -35,8 +35,8 @@ int main()
 	// \param depthBits: detph buffer 비트
 	// \param stencilBits: stencil bugger 비트
 	// \param antialiasingLevel: 안티엘리어싱 레벨
-	// \param majorVersion:
-	// \param minorVersion:
+	// \param majorVersion: OpenGL 메이저 버전
+	// \param minorVersion: OpenGL 마이너 버전
 	ContextSettings windowSettings;
 	windowSettings.depthBits = 24U;
 	windowSettings.stencilBits = 8U;
@@ -48,6 +48,8 @@ int main()
 	int32_t windowStyle = Style::Close;
 
 	// 폰트
+
+	// 
 	Font font;
 	if ( !font.loadFromFile("c:/windows/fonts/arial.ttf") )
 	{
@@ -56,8 +58,12 @@ int main()
 	}
 
 	// 사운드
+	 
+	// 공이 스틱에 부딪힐 때 재생되는 사운드 버퍼
 	SoundBuffer soundEffectBlip;
+	// 스코어가 오를 때 재생되는 사운드 버퍼
 	SoundBuffer soundEffectScore;
+	// 실제로 재생되는 사운드 객체
 	Sound soundEffect;
 
 	if ( !soundEffectBlip.loadFromFile("sound/pongblip.wav ") || !soundEffectScore.loadFromFile("sound/scoreget.wav ") )
@@ -65,7 +71,8 @@ int main()
 		return EXIT_FAILURE;
 	}
 
-	soundEffect.setVolume(50.f);
+	float soundEffectVolume = 50.f;
+	soundEffect.setVolume(soundEffectVolume);
 
 	//////////////////////////////////////////
 	//
@@ -77,6 +84,8 @@ int main()
 
 	RenderWindow window;
 	window.create(VideoMode(windowWidth, windowHeight), windowTitle, windowStyle, windowSettings);
+
+	// 윈도우의 프레임 레이트 제한
 	window.setFramerateLimit(60);
 
 	///////////////////////////////////////////
@@ -92,10 +101,13 @@ int main()
 	Clock UserClock;
 	float DeltaTime = 0.f;
 
+	// 랜덤 값 생성을 위한 변수
 	random_device rd;
 	mt19937_64 gen(rd());
 	uniform_int_distribution<> intDist(0, 1);
 	uniform_real_distribution<> floatDist;
+
+	// int인 window.getSize()의 값을 float인 변수로 저장
 
 	const Vector2u windowSize = window.getSize();
 	const float windowSize_x = static_cast< float >( windowSize.x );
@@ -103,34 +115,34 @@ int main()
 
 	// 스틱 오브젝트
 
-	const float leftSideStick = windowSize_x * 0.1f;
-	const float rightSideStick = windowSize_x * 0.9f;
-	const float middleOfStickPositonY = ( windowSize_y - PongStick::defaultPongStickHeight ) / 2;
 
-	const Vector2f pongLeftStickPosition(leftSideStick, middleOfStickPositonY);
-	const Vector2f pongRightStickPosition(rightSideStick, middleOfStickPositonY);
+	const float leftStickPositionX = windowSize_x * 0.1f; // 왼쪽 스틱의 x좌표
+	const float rightStickPositionX = windowSize_x * 0.9f; // 오른쪽 스틱의 x좌표
+	const float middleOfStickPositonY = ( windowSize_y - PongStick::defaultPongStickHeight ) / 2; // 모든 스틱의 y좌표, 화면의 정중앙
 
-	PongStick PongStick1(pongLeftStickPosition, PlayerType::Human);
-	PongStick PongStick2(pongRightStickPosition, PlayerType::Computer);
+	const Vector2f leftStickPosition(leftStickPositionX, middleOfStickPositonY); // 왼쪽 스틱의 포지션
+	const Vector2f rightStickPosition(rightStickPositionX, middleOfStickPositonY); // 오른쪽 스틱의 포지션
 
-	FloatRect stickAreaTest;
-	vector<FloatRect> stickArea;
+	PongStick leftPongStick(leftStickPosition, PlayerType::Human); // 왼쪽 스틱 객체 생성
+	PongStick rightPongStick(rightStickPosition, PlayerType::Human); // 오른쪽 스틱 객체 생성
+
+	vector<FloatRect> stickArea; // 스틱 위치 영역 vector
 
 	// 공 오브젝트
 
-	const float ballRadius = 10.f;
-	const float ballSpeed = 300.f;
-	const Vector2f ballInitPosition = Vector2f(( windowSize_x - ballRadius ) / 2, ( windowSize_y - ballRadius ) / 2);;
+	const float ballRadius = 10.f; // 공 반지름
+	const float ballSpeed = 300.f; // 공 이동 속도
+	const Vector2f ballInitPosition = Vector2f(( windowSize_x - ballRadius ) / 2, ( windowSize_y - ballRadius ) / 2); // 공 최초 생성 위치
 
-	PongBall pongBall(ballInitPosition, 10.f, ballSpeed);
+	PongBall pongBall(ballInitPosition, 10.f, ballSpeed); // 공 객체 생성
 
-	float ballMaxOffsetRangeOfX = ( windowSize_x - leftSideStick ) / windowSize_y;
-	float ballMaxOffsetRangeOfY = windowSize_y / windowSize_y;
+	float ballMaxOffsetRangeOfX = ( windowSize_x - leftStickPositionX ) / windowSize_y; // 공 속도 오프셋의 지정 가능한 x좌표의 최대값
+	float ballMaxOffsetRangeOfY = windowSize_y / windowSize_y; // 공 속도 오프셋의 지정 가능한 y좌표의 최대값
 	uniform_real_distribution<> ballYOffestDist(-ballMaxOffsetRangeOfY, ballMaxOffsetRangeOfY);
 
-	Vector2f ballVelocityOffest(ballMaxOffsetRangeOfX, static_cast< float >( ballYOffestDist(gen) ));
+	Vector2f ballVelocityOffest(ballMaxOffsetRangeOfX, static_cast< float >( ballYOffestDist(gen) )); // 공 속도 오프셋
 
-	FloatRect ballArea;
+	FloatRect ballArea; // 공 위치 영역
 
 	// 스코어 보드 텍스트 오브젝트
 
@@ -201,16 +213,20 @@ int main()
 		// 
 		///////////////////////////////////////////
 
+
 		Event event;
 
+		//SFML window 이벤트 핸들러
 		while ( window.pollEvent(event) )
 		{
 			switch ( event.type )
 			{
+				// 닫기 이벤트
 			case Event::Closed:
 				window.close();
 				break;
 
+				// 키 누름 이벤트
 			case Event::KeyPressed:
 
 				switch ( event.key.code )
@@ -247,22 +263,24 @@ int main()
 
 		DeltaTime = UserClock.restart().asSeconds();
 
+		// 왼쪽 스틱의 조작 키 지정
 		if ( Keyboard::isKeyPressed(Keyboard::Up) )
 		{
-			PongStick1.StickVerticalMove(VerticalDirection::Up, DeltaTime);
+			leftPongStick.StickVerticalMove(VerticalDirection::Up, DeltaTime);
 		}
 		if ( Keyboard::isKeyPressed(Keyboard::Down) )
 		{
-			PongStick1.StickVerticalMove(VerticalDirection::Down, DeltaTime);
+			leftPongStick.StickVerticalMove(VerticalDirection::Down, DeltaTime);
 		}
 
+		// 오른쪽 스틱의 조작 키 지정
 		if ( Keyboard::isKeyPressed(Keyboard::W) )
 		{
-			PongStick2.StickVerticalMove(VerticalDirection::Up, DeltaTime);
+			rightPongStick.StickVerticalMove(VerticalDirection::Up, DeltaTime);
 		}
 		if ( Keyboard::isKeyPressed(Keyboard::S) )
 		{
-			PongStick2.StickVerticalMove(VerticalDirection::Down, DeltaTime);
+			rightPongStick.StickVerticalMove(VerticalDirection::Down, DeltaTime);
 		}
 
 		///////////////////////////////////////////
@@ -275,17 +293,21 @@ int main()
 
 		// 움직이는 오브젝트의 위치를 갱신합니다
 
-
-		stickArea.push_back(PongStick1.getGlobalBounds());
-		stickArea.push_back(PongStick2.getGlobalBounds());
+		stickArea.push_back(leftPongStick.getGlobalBounds());
+		stickArea.push_back(rightPongStick.getGlobalBounds());
 
 		ballArea = pongBall.getGlobalBounds();
 
+		// 스틱과 공의 충돌 체크
 		for ( const auto& stick : stickArea )
 		{
+			// 스틱과 공 충돌 시 동작
 			if ( stick.intersects(ballArea) )
 			{
+				// 충돌 시 좌우 이동 방향 반전
 				ballVelocityOffest.x *= -1;
+
+				// 충돌 시 Blip 사운드 재생
 				soundEffect.resetBuffer();
 				soundEffect.setBuffer(soundEffectBlip);
 				soundEffect.play();
@@ -294,19 +316,25 @@ int main()
 		}
 		stickArea.clear();
 
+		// 상하 벽과 공의 충돌 체크
 		for ( const auto& wall : updownWall )
 		{
+			// 상하 벽과 공 충돌 시 동작
 			if ( wall.intersects(ballArea) )
 			{
+				// 충돌 시 상하 이동 방향 반전
 				ballVelocityOffest.y *= -1;
 				break;
 			}
 		}
 
+		// 좌우 벽과 공의 충돌 체크
 		for ( const auto& wall : sideWall )
 		{
+			// 좌우 벽과 공 충돌 시 동작
 			if ( wall.wallArea.intersects(ballArea) )
 			{
+				// 충돌 시 Score 사운드 재생
 				soundEffect.resetBuffer();
 				soundEffect.setBuffer(soundEffectScore);
 				soundEffect.play();
@@ -315,13 +343,15 @@ int main()
 				ballVelocityOffest.x *= -1;// 공 방향 수정
 				ballVelocityOffest.y = static_cast< float >( ballYOffestDist(gen) );// 공 방향 수정
 
-				//충돌한 측면 벽의 위치에 따라, 상대편의 점수가 1점 씩 올라갑니다
+				//충돌한 측면 벽의 상대편 점수가 1점 씩 상승
 				switch ( wall.wallSide )
 				{
+					// 충돌한 벽이 왼쪽일 때
 				case WallSide::Left:
 					rightSideScoreText.setString(to_string(++rightSideScore));
 					break;
 
+					// 충돌한 벽이 오른쪽일 때
 				case WallSide::Right:
 					leftSideScoreText.setString(to_string(++leftSideScore));
 					break;
@@ -345,8 +375,8 @@ int main()
 
 		window.clear();
 
-		window.draw(PongStick1);
-		window.draw(PongStick2);
+		window.draw(leftPongStick);
+		window.draw(rightPongStick);
 		window.draw(pongBall);
 
 		window.draw(leftSideScoreText);
